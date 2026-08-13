@@ -41,35 +41,35 @@ def test_run_order_exito(mocker):
 #   - Verifica que el mensaje EMPIECE por "ERROR: sin stock".
 def test_run_order_sin_stock(mocker):
     service = mocker.MagicMock()
-    service.place_order.side_effect = OutOfStockError()
+    service.place_order.side_effect = OutOfStockError("sin unidades")
 
     mensaje = run_order(service, "SKU-1", 2, "tok_visa")
 
-    assert "ERROR: sin stock" in mensaje
+    assert mensaje.startswith("ERROR: sin stock")
 
 
 # TODO 2: Pago rechazado.
 #   - `side_effect = PaymentRejectedError("insufficient_funds")`.
 #   - Verifica que el mensaje EMPIECE por "ERROR: pago rechazado".
 def test_run_order_pago_rechazado(mocker):
-    servicio = mocker.MagicMock()
-    servicio.place_order.side_effect = PaymentRejectedError("insufficient_funds")
+    service = mocker.MagicMock()
+    service.place_order.side_effect = PaymentRejectedError("insufficient_funds")
 
-    mensaje = run_order(servicio, "SKU-1", 2 , "tok_visa")
+    mensaje = run_order(service, "SKU-1", 2, "tok_visa")
 
-    assert "ERROR: pago rechazado" in mensaje
+    assert mensaje.startswith("ERROR: pago rechazado")
 
 
 # TODO 3: Error inesperado (p. ej. la BD/red falla).
 #   - `side_effect = ConnectionError("boom")` (o cualquier Exception genérica).
 #   - Verifica que el mensaje EMPIECE por "ERROR: inesperado".
 def test_run_order_error_inesperado(mocker):
-    servicio = mocker.MagicMock()
-    servicio.place_order.side_effect = ConnectionError("boom")
+    service = mocker.MagicMock()
+    service.place_order.side_effect = ConnectionError("boom")
 
-    mensaje = run_order(servicio, "SKU-1", 2, "tok_visa")
+    mensaje = run_order(service, "SKU-1", 2, "tok_visa")
 
-    assert "ERROR: inesperado" in mensaje
+    assert mensaje.startswith("ERROR: inesperado")
 
 
 # TODO 4 (OPCIONAL, avanzado — NO cuenta para la nota): prueba `app.cli.main([...])`
