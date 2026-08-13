@@ -61,7 +61,12 @@ def test_calculate_total_aplica_iva():
 #   - `calculate_total(100.0, 0)` y `calculate_total(100.0, -1)` deben lanzar
 #     `ValueError`. Usa `with pytest.raises(ValueError): ...`.
 def test_calculate_total_cantidad_invalida():
-    pytest.skip("TODO pendiente: completa este test (Integrante responsable).")
+    # pytest.skip("TODO pendiente: completa este test (Integrante responsable).")
+    service, _,_=make_service()
+    with pytest.raises(ValueError):
+        service.calculate_total(100.0, 0)
+    with pytest.raises(ValueError):
+        service.calculate_total(100.0, -1)     
 
 
 # TODO 2: Stock insuficiente.
@@ -70,15 +75,22 @@ def test_calculate_total_cantidad_invalida():
 #   - EXTRA: verifica que NUNCA se intentó cobrar
 #     (`gateway.charge.assert_not_called()`).
 def test_place_order_sin_stock():
-    pytest.skip("TODO pendiente: completa este test (Integrante responsable).")
-
+    # pytest.skip("TODO pendiente: completa este test (Integrante responsable).")
+    service, _, gateway= make_service(stock=1)
+    with pytest.raises(OutOfStockError):
+        service.place_order("caja_de_zapato", quantity=5, card_token="elpapu12")
+    gateway.charge.assert_not_called()
 
 # TODO 3: Pago rechazado.
 #   - Configura el servicio con approved=False.
 #   - `place_order(...)` debe lanzar `PaymentRejectedError`.
 #   - EXTRA: verifica que el pedido NO se guardó (`db.save_order.assert_not_called()`).
 def test_place_order_pago_rechazado():
-    pytest.skip("TODO pendiente: completa este test (Integrante responsable).")
+    # pytest.skip("TODO pendiente: completa este test (Integrante responsable).")
+    service, db, gateway= make_service(approved=False)
+    with pytest.raises(PaymentRejectedError):
+        service.place_order("caja_de_zapato", quantity=2, card_token="elpapu123")
+    db.save_order.assert_not_called()
 
 
 # TODO 4: Camino feliz completo.
@@ -87,4 +99,16 @@ def test_place_order_pago_rechazado():
 #   - Verifica que se descontó el stock:
 #     `db.update_stock` fue llamado con (product_id, stock - quantity).
 def test_place_order_confirmado_descuenta_stock():
-    pytest.skip("TODO pendiente: completa este test (Integrante responsable).")
+    # pytest.skip("TODO pendiente: completa este test (Integrante responsable).")
+    stock = 10
+    price = 100.0
+    quantity = 2
+    product_id = "caja_de_zapato"
+
+    service, db, gateway = make_service(stock=stock, price=price, approved=True)
+    result = service.place_order(product_id, quantity=quantity, card_token="elpapu123")
+
+    assert result["status"] == "CONFIRMED"
+    assert result["total"] == 232.0
+
+    db.update_stock.assert_called_once_with(product_id, stock - quantity)
