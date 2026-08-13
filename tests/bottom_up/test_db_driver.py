@@ -75,8 +75,8 @@ def test_fake_db_lee_estado_inicial(fake_db):
 #     `fake_db.get_stock("SKU-1")` ahora devuelva ese mismo valor (7).
 #     (Un Mock no haría esto solo: aquí el estado se guarda de verdad.)
 def test_fake_db_actualiza_stock(fake_db):
-    pytest.skip("TODO pendiente: completa este test (Integrante responsable).")
-
+    fake_db.update_stock("SKU-1",7)
+    assert fake_db.get_stock("SKU-1")==7
 
 # TODO 2: Guardado de pedidos.
 #   - Guarda un pedido con `fake_db.save_order(...)` y comprueba que:
@@ -84,7 +84,23 @@ def test_fake_db_actualiza_stock(fake_db):
 #       * ese id aparezca dentro de `fake_db.orders`,
 #       * al guardar un segundo pedido, su id sea distinto del primero.
 def test_fake_db_guarda_pedidos_con_id_unico(fake_db):
-    pytest.skip("TODO pendiente: completa este test (Integrante responsable).")
+    pedido_1={
+        "product_id": "SKU-1",
+        "quantity":2,
+        "total":323.0
+    }
+    pedido2={
+        "product_id": "SKU-1",
+        "quantity":1,
+        "total":116.0
+    }
+
+    order_id_1=fake_db.save_order(pedido_1)
+    order_id_2=fake_db.save_order(pedido2)
+
+    assert order_id_1
+    assert order_id_1 in fake_db.orders
+    assert order_id_2 != order_id_1
 
 
 # TODO 3 (OPCIONAL — NO cuenta para la nota): decide qué hacer ante un producto
